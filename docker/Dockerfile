@@ -12,7 +12,7 @@ RUN npm install -g corepack@0.31.0 && corepack enable
 RUN apk add --no-cache libc6-compat make g++ py3-pip linux-headers
 
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 RUN pnpm install --frozen-lockfile
 
@@ -57,9 +57,9 @@ ARG TARGETARCH
 ADD https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz /tmp
 RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz \
     && case ${TARGETARCH} in \
-            "amd64")  S6_ARCH=x86_64   ;; \
-            "arm64")  S6_ARCH=aarch64  ;; \
-        esac \
+    "amd64")  S6_ARCH=x86_64   ;; \
+    "arm64")  S6_ARCH=aarch64  ;; \
+    esac \
     && echo https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz -O /tmp/s6-overlay-${S6_ARCH}.tar.xz \
     && wget https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-${S6_ARCH}.tar.xz -O /tmp/s6-overlay-${S6_ARCH}.tar.xz \
     && tar -C / -Jxpf /tmp/s6-overlay-${S6_ARCH}.tar.xz \

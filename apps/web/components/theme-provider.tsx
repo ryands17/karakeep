@@ -1,7 +1,6 @@
 "use client";
 
 import type { ThemeProviderProps } from "next-themes/dist/types";
-import * as React from "react";
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
@@ -9,8 +8,9 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 }
 
 export function useToggleTheme() {
-  const { theme, setTheme } = useTheme();
-  if (theme == "dark") {
+  const { theme, setTheme, systemTheme } = useTheme();
+
+  if (theme == "dark" || systemTheme == "dark") {
     return () => setTheme("light");
   } else {
     return () => setTheme("dark");
