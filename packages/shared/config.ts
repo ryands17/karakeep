@@ -136,7 +136,7 @@ const allEnv = z.object({
   CRAWLER_NO_PROXY: z.string().optional(),
 
   // Database configuration
-  DB_WAL_MODE: stringBool("false"),
+  DB_WAL_MODE: stringBool("true"),
 });
 
 const serverConfigSchema = allEnv.transform((val, ctx) => {
