@@ -1,7 +1,7 @@
 import { trpcServer } from "@hono/trpc-server";
 import { Hono } from "hono";
 
-import { Context } from "@karakeep/trpc";
+import { Context, seedGlobalSettings } from "@karakeep/trpc";
 import { appRouter } from "@karakeep/trpc/routers/_app";
 
 const trpc = new Hono<{
@@ -13,7 +13,10 @@ const trpc = new Hono<{
   trpcServer({
     endpoint: "/api/trpc",
     router: appRouter,
-    createContext: (_, c) => {
+    createContext: async (_, c) => {
+      // Initialize global settings if not already done
+      await seedGlobalSettings();
+
       return c.var.ctx;
     },
     onError: ({ path, error }) => {

@@ -11,6 +11,7 @@ import {
   bookmarkLists,
   bookmarks,
   bookmarkTags,
+  globalSettings,
   highlights,
   passwordResetTokens,
   tagsOnBookmarks,
@@ -19,7 +20,7 @@ import {
   verificationTokens,
 } from "@karakeep/db/schema";
 import { deleteUserAssets } from "@karakeep/shared/assetdb";
-import serverConfig from "@karakeep/shared/config";
+import serverConfig, { globalConfig } from "@karakeep/shared/config";
 import {
   zResetPasswordSchema,
   zSignUpSchema,
@@ -203,10 +204,11 @@ export const usersAppRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      if (
-        serverConfig.auth.disableSignups ||
-        serverConfig.auth.disablePasswordAuth
-      ) {
+      const signupsEnabled = await ctx.db.query.globalSettings.findFirst({
+        where: eq(globalSettings.name, globalConfig.allowUserSignups.name),
+      });
+
+      if (!signupsEnabled?.value || serverConfig.auth.disablePasswordAuth) {
         const errorMessage = serverConfig.auth.disablePasswordAuth
           ? "Local Signups are disabled in the server config. Use OAuth instead!"
           : "Signups are disabled in server config";

@@ -151,7 +151,6 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
       return val.NEXTAUTH_SECRET;
     },
     auth: {
-      disableSignups: val.DISABLE_SIGNUPS,
       disablePasswordAuth: val.DISABLE_PASSWORD_AUTH,
       emailVerificationRequired: val.EMAIL_VERIFICATION_REQUIRED,
       oauth: {
@@ -320,7 +319,6 @@ export const clientConfig = {
   publicApiUrl: serverConfig.publicApiUrl,
   demoMode: serverConfig.demoMode,
   auth: {
-    disableSignups: serverConfig.auth.disableSignups,
     disablePasswordAuth: serverConfig.auth.disablePasswordAuth,
   },
   inference: {
@@ -333,3 +331,16 @@ export const clientConfig = {
 export type ClientConfig = typeof clientConfig;
 
 export default serverConfig;
+
+type GlobalSettings = Record<
+  string,
+  { name: string; description: string; value: boolean }
+>;
+
+export const globalConfig = {
+  allowUserSignups: {
+    name: "allow_user_signups",
+    description: "Allow new users to sign up",
+    value: true,
+  },
+} as const satisfies GlobalSettings;

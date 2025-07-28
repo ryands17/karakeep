@@ -2,8 +2,9 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import type { db } from "@karakeep/db";
-import serverConfig from "@karakeep/shared/config";
+import type { DB } from "@karakeep/db";
+import { db, schema } from "@karakeep/db";
+import serverConfig, { globalConfig } from "@karakeep/shared/config";
 
 import { createRateLimitMiddleware } from "./rateLimit";
 import {
@@ -21,7 +22,7 @@ interface User {
 
 export interface Context {
   user: User | null;
-  db: typeof db;
+  db: DB;
   req: {
     ip: string | null;
   };
@@ -29,7 +30,7 @@ export interface Context {
 
 export interface AuthedContext {
   user: User;
-  db: typeof db;
+  db: DB;
   req: {
     ip: string | null;
   };
@@ -127,6 +128,13 @@ export const adminProcedure = authedProcedure.use(function isAdmin(opts) {
   }
   return opts.next(opts);
 });
+
+export const seedGlobalSettings = async () => {
+  await db
+    .insert(schema.globalSettings)
+    .values(Object.values(globalConfig))
+    .onConflictDoNothing({ target: schema.globalSettings.name });
+};
 
 // Export the rate limiting utilities for use in routers
 export { createRateLimitMiddleware };

@@ -45,10 +45,7 @@ export default function SignUpForm() {
 
   const createUserMutation = api.users.create.useMutation();
 
-  if (
-    clientConfig.auth.disableSignups ||
-    clientConfig.auth.disablePasswordAuth
-  ) {
+  if (clientConfig.auth.disablePasswordAuth) {
     return (
       <Card className="w-full">
         <CardHeader className="text-center">
