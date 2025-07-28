@@ -25,6 +25,11 @@ const adminSidebarItems = (
     path: "/admin/overview",
   },
   {
+    name: t("admin.global_settings.global_settings"),
+    icon: <Settings size={18} />,
+    path: "/admin/global_settings",
+  },
+  {
     name: t("admin.users_list.users_list"),
     icon: <Users size={18} />,
     path: "/admin/users",

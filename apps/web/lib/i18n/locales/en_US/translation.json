@@ -399,6 +399,18 @@
       "total_bookmarks": "Total Bookmarks",
       "server_version": "Server Version"
     },
+    "global_settings": {
+      "global_settings": "Global Settings",
+      "table": {
+        "name": "Name",
+        "value": "Value",
+        "description": "Description"
+      },
+      "actions": {
+        "updated": "Setting updated successfully",
+        "error": "Something went wrong while updating the setting"
+      }
+    },
     "background_jobs": {
       "background_jobs": "Background Jobs",
       "crawler_jobs": "Crawler Jobs",
