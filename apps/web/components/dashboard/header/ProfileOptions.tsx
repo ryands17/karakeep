@@ -20,9 +20,9 @@ import { AdminNoticeBadge } from "../../admin/AdminNotices";
 
 function DarkModeToggle() {
   const { t } = useTranslation();
-  const { theme } = useTheme();
+  const { theme, systemTheme } = useTheme();
 
-  if (theme == "dark") {
+  if (theme == "dark" || systemTheme == "dark") {
     return (
       <>
         <Sun className="mr-2 size-4" />

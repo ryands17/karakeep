@@ -22,6 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import LoadingSpinner from "@/components/ui/spinner";
 import { useClientConfig } from "@/lib/clientConfig";
 import { api } from "@/lib/trpc";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,12 +44,14 @@ export default function SignUpForm() {
   const router = useRouter();
   const clientConfig = useClientConfig();
 
+  const { data } = api.globalSettings.signupEnabled.useQuery();
   const createUserMutation = api.users.create.useMutation();
 
-  if (
-    clientConfig.auth.disableSignups ||
-    clientConfig.auth.disablePasswordAuth
-  ) {
+  if (!data) {
+    return <LoadingSpinner />;
+  }
+
+  if (clientConfig.auth.disablePasswordAuth || !data.signupsEnabled) {
     return (
       <Card className="w-full">
         <CardHeader className="text-center">

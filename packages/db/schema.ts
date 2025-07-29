@@ -572,6 +572,12 @@ export const userSettings = sqliteTable("userSettings", {
   timezone: text("timezone").default("UTC"),
 });
 
+export const globalSettings = sqliteTable("globalSettings", {
+  name: text("name").notNull().unique(),
+  value: integer("value", { mode: "boolean" }),
+  description: text("description"),
+});
+
 export const invites = sqliteTable("invites", {
   id: text("id")
     .notNull()

@@ -331,6 +331,18 @@
       "pending": "Pending",
       "failed": "Failed"
     },
+    "global_settings": {
+      "global_settings": "Global Settings",
+      "table": {
+        "name": "Name",
+        "value": "Value",
+        "description": "Description"
+      },
+      "actions": {
+        "updated": "Setting updated successfully",
+        "error": "Something went wrong while updating the setting"
+      }
+    },
     "actions": {
       "recrawl_failed_links_only": "Recrawl Failed Links Only",
       "recrawl_all_links": "Recrawl All Links",

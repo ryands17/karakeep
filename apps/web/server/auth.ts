@@ -13,11 +13,12 @@ import { Provider } from "next-auth/providers/index";
 import { db } from "@karakeep/db";
 import {
   accounts,
+  globalSettings,
   sessions,
   users,
   verificationTokens,
 } from "@karakeep/db/schema";
-import serverConfig from "@karakeep/shared/config";
+import serverConfig, { globalConfig } from "@karakeep/shared/config";
 import { validatePassword } from "@karakeep/trpc/auth";
 import { createUserRaw } from "@karakeep/trpc/routers/users";
 
@@ -186,7 +187,11 @@ export const authOptions: NextAuthOptions = {
       }
 
       // If it's a new user and signups are disabled, fail the sign in
-      if (!user && serverConfig.auth.disableSignups) {
+      const singupsEnabled = await db.query.globalSettings.findFirst({
+        where: eq(globalSettings.name, globalConfig.allowUserSignups.name),
+      });
+
+      if (!user && !singupsEnabled?.value) {
         throw new Error("Signups are disabled in server config");
       }
 
