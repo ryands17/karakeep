@@ -7,7 +7,7 @@ import serverConfig from "@karakeep/shared/config";
 import { InferenceClient } from "@karakeep/shared/inference";
 import logger from "@karakeep/shared/logger";
 import { buildSummaryPrompt } from "@karakeep/shared/prompts";
-import { triggerSearchReindex, ZOpenAIRequest } from "@karakeep/shared/queues";
+import { triggerSearchReindex, ZAIRequest } from "@karakeep/shared/queues";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 import { Bookmark } from "@karakeep/trpc/models/bookmarks";
 
@@ -39,7 +39,7 @@ async function fetchBookmarkDetailsForSummary(bookmarkId: string) {
 
 export async function runSummarization(
   bookmarkId: string,
-  job: DequeuedJob<ZOpenAIRequest>,
+  job: DequeuedJob<ZAIRequest>,
   inferenceClient: InferenceClient,
 ) {
   if (!serverConfig.inference.enableAutoSummarization) {

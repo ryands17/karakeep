@@ -33,13 +33,13 @@ export const LinkCrawlerQueue = new SqliteQueue<ZCrawlLinkRequest>(
 );
 
 // Inference Worker
-export const zOpenAIRequestSchema = z.object({
+export const zAIRequestSchema = z.object({
   bookmarkId: z.string(),
   type: z.enum(["summarize", "tag"]).default("tag"),
 });
-export type ZOpenAIRequest = z.infer<typeof zOpenAIRequestSchema>;
+export type ZAIRequest = z.infer<typeof zAIRequestSchema>;
 
-export const OpenAIQueue = new SqliteQueue<ZOpenAIRequest>(
+export const OpenAIQueue = new SqliteQueue<ZAIRequest>(
   "openai_queue",
   queueDB,
   {

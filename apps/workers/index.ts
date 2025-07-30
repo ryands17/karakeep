@@ -9,7 +9,7 @@ import { shutdownPromise } from "./exit";
 import { AssetPreprocessingWorker } from "./workers/assetPreprocessingWorker";
 import { CrawlerWorker } from "./workers/crawlerWorker";
 import { FeedRefreshingWorker, FeedWorker } from "./workers/feedWorker";
-import { OpenAiWorker } from "./workers/inference/inferenceWorker";
+import { AiWorker } from "./workers/inference/inferenceWorker";
 import { RuleEngineWorker } from "./workers/ruleEngineWorker";
 import { SearchIndexingWorker } from "./workers/searchWorker";
 import { TidyAssetsWorker } from "./workers/tidyAssetsWorker";
@@ -33,7 +33,7 @@ async function main() {
     ruleEngine,
   ] = [
     await CrawlerWorker.build(),
-    OpenAiWorker.build(),
+    AiWorker.build(),
     SearchIndexingWorker.build(),
     TidyAssetsWorker.build(),
     VideoWorker.build(),

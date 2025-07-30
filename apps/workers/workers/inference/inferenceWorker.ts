@@ -1,13 +1,13 @@
 import { eq } from "drizzle-orm";
 import { DequeuedJob, Runner } from "liteque";
 
-import type { ZOpenAIRequest } from "@karakeep/shared/queues";
+import type { ZAIRequest } from "@karakeep/shared/queues";
 import { db } from "@karakeep/db";
 import { bookmarks } from "@karakeep/db/schema";
 import serverConfig from "@karakeep/shared/config";
 import { InferenceClientFactory } from "@karakeep/shared/inference";
 import logger from "@karakeep/shared/logger";
-import { OpenAIQueue, zOpenAIRequestSchema } from "@karakeep/shared/queues";
+import { OpenAIQueue, zAIRequestSchema } from "@karakeep/shared/queues";
 
 import { runSummarization } from "./summarize";
 import { runTagging } from "./tagging";
@@ -20,7 +20,7 @@ async function attemptMarkStatus(
     return;
   }
   try {
-    const request = zOpenAIRequestSchema.parse(jobData);
+    const request = zAIRequestSchema.parse(jobData);
     await db
       .update(bookmarks)
       .set({
@@ -35,13 +35,13 @@ async function attemptMarkStatus(
   }
 }
 
-export class OpenAiWorker {
+export class AiWorker {
   static build() {
     logger.info("Starting inference worker ...");
-    const worker = new Runner<ZOpenAIRequest>(
+    const worker = new Runner<ZAIRequest>(
       OpenAIQueue,
       {
-        run: runOpenAI,
+        run: runAIWorker,
         onComplete: async (job) => {
           const jobId = job.id;
           logger.info(`[inference][${jobId}] Completed successfully`);
@@ -68,7 +68,7 @@ export class OpenAiWorker {
   }
 }
 
-async function runOpenAI(job: DequeuedJob<ZOpenAIRequest>) {
+async function runAIWorker(job: DequeuedJob<ZAIRequest>) {
   const jobId = job.id;
 
   const inferenceClient = InferenceClientFactory.build();
@@ -79,7 +79,7 @@ async function runOpenAI(job: DequeuedJob<ZOpenAIRequest>) {
     return;
   }
 
-  const request = zOpenAIRequestSchema.safeParse(job.data);
+  const request = zAIRequestSchema.safeParse(job.data);
   if (!request.success) {
     throw new Error(
       `[inference][${jobId}] Got malformed job request: ${request.error.toString()}`,
