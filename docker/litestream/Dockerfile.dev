@@ -1,0 +1,3 @@
+FROM litestream/litestream
+
+COPY litestream-dev.yml /etc/litestream.yml

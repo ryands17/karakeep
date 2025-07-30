@@ -10,13 +10,10 @@ services:
       # If you want to mount a custom directory, change the volume mapping to:
       # - /path/to/your/directory:/data
       - data:/data
-    ports:
-      - 3000:3000
-    env_file:
-      - ../.env
+    expose:
+      - "3000"
     depends_on:
       - db_backup
-      - storage
     environment:
       MEILI_ADDR: http://meilisearch:7700
       BROWSER_WEB_URL: http://chrome:9222
@@ -28,7 +25,7 @@ services:
   db_backup:
     build:
       context: ./litestream
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: litestream
     healthcheck:
       test: "/usr/local/bin/litestream restore -if-db-not-exists -if-replica-exists -o /data/db.db s3://$DB_BUCKET_NAME/pockets.db"
@@ -37,25 +34,9 @@ services:
     command: replicate
     depends_on:
       - storage
-    env_file:
-      - ../.env
     restart: always
     volumes:
       - data:/data
-  storage:
-    image: minio/minio:RELEASE.2025-07-18T21-56-31Z
-    container_name: minio
-    expose:
-      - "9000"
-    ports:
-      - 9001:9001
-    environment:
-      MINIO_ROOT_USER: admin
-      MINIO_ROOT_PASSWORD: minioadmin
-    command: minio server --console-address ":9001" /data
-    restart: always
-    volumes:
-      - s3_storage:/data
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
     restart: unless-stopped
@@ -69,8 +50,6 @@ services:
   meilisearch:
     image: getmeili/meilisearch:v1.13.3
     restart: unless-stopped
-    env_file:
-      - ../.env
     environment:
       MEILI_NO_ANALYTICS: "true"
     volumes:
@@ -79,4 +58,3 @@ services:
 volumes:
   meilisearch:
   data:
-  s3_storage:

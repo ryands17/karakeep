@@ -14,7 +14,7 @@ RUN apk add --no-cache libc6-compat make g++ py3-pip linux-headers
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build the db migration script
 RUN cd packages/db && \
@@ -44,8 +44,8 @@ WORKDIR /app
 ARG SERVER_VERSION=nightly
 ENV SERVER_VERSION=${SERVER_VERSION}
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
 
 ######################
@@ -77,8 +77,8 @@ RUN apk add --no-cache monolith yt-dlp graphicsmagick ghostscript
 # Prepare the web app
 ######################
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXTAUTH_URL_INTERNAL=http://localhost:${PORT}
 
 COPY --from=base --chown=node:node /app/apps/web/.next/standalone ./

@@ -1,0 +1,10 @@
+access-key-id: $ACCESS_KEY_ID
+secret-access-key: $SECRET_ACCESS_KEY
+
+dbs:
+  - path: /data/db.db
+    replicas:
+      - type: s3
+        bucket: $DB_BUCKET_NAME
+        path: pockets.db
+        endpoint: http://storage:9000
