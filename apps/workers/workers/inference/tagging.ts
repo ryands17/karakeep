@@ -23,7 +23,7 @@ import {
 } from "@karakeep/shared/queues";
 import { Bookmark } from "@karakeep/trpc/models/bookmarks";
 
-const openAIResponseSchema = z.object({
+const llmResponseSchema = z.object({
   tags: z.array(z.string()),
 });
 
@@ -137,7 +137,7 @@ async function inferTagsFromImage(
     ),
     metadata.contentType,
     base64,
-    { schema: openAIResponseSchema, abortSignal },
+    { schema: llmResponseSchema, abortSignal },
   );
 }
 
@@ -211,7 +211,7 @@ async function inferTagsFromPDF(
     serverConfig.inference.contextLength,
   );
   return inferenceClient.inferFromText(prompt, {
-    schema: openAIResponseSchema,
+    schema: llmResponseSchema,
     abortSignal,
   });
 }
@@ -222,7 +222,7 @@ async function inferTagsFromText(
   abortSignal: AbortSignal,
 ) {
   return await inferenceClient.inferFromText(await buildPrompt(bookmark), {
-    schema: openAIResponseSchema,
+    schema: llmResponseSchema,
     abortSignal,
   });
 }
@@ -266,7 +266,7 @@ async function inferTags(
   }
 
   try {
-    let tags = openAIResponseSchema.parse(
+    let tags = llmResponseSchema.parse(
       parseJsonFromLLMResponse(response.response),
     ).tags;
     logger.info(
