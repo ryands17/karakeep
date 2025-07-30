@@ -1,3 +1,5 @@
+import Anthropic from "@anthropic-ai/sdk";
+import { Base64ImageSource } from "@anthropic-ai/sdk/resources/messages";
 import { Ollama } from "ollama";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
@@ -57,6 +59,10 @@ export class InferenceClientFactory {
       return new OpenAIInferenceClient();
     }
 
+    if (serverConfig.inference.anthropicApiKey) {
+      return new ClaudeInferenceClient();
+    }
+
     if (serverConfig.inference.ollamaBaseUrl) {
       return new OllamaInferenceClient();
     }
@@ -64,17 +70,109 @@ export class InferenceClientFactory {
   }
 }
 
+class ClaudeInferenceClient implements InferenceClient {
+  private cl: Anthropic;
+  private static model = "claude-3-5-haiku-20241022";
+
+  constructor() {
+    this.cl = new Anthropic({
+      apiKey: serverConfig.inference.anthropicApiKey,
+      defaultHeaders: { "X-Title": "Karakeep" },
+    });
+  }
+
+  async inferFromText(
+    prompt: string,
+    opts: Partial<InferenceOptions>,
+  ): Promise<InferenceResponse> {
+    const optsWithDefaults: InferenceOptions = {
+      ...defaultInferenceOptions,
+      ...opts,
+    };
+
+    const chatCompletion = await this.cl.messages.create(
+      {
+        model: ClaudeInferenceClient.model,
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }],
+      },
+      {
+        signal: optsWithDefaults.abortSignal,
+      },
+    );
+
+    const response = chatCompletion.content[0];
+    if (response.type !== "text") {
+      throw new Error(`Got no message content from Claude`);
+    }
+    return {
+      response: response.text,
+      totalTokens:
+        chatCompletion.usage.output_tokens + chatCompletion.usage.input_tokens,
+    };
+  }
+
+  async inferFromImage(
+    prompt: string,
+    contentType: string,
+    image: string,
+    opts: Partial<InferenceOptions>,
+  ): Promise<InferenceResponse> {
+    const optsWithDefaults: InferenceOptions = {
+      ...defaultInferenceOptions,
+      ...opts,
+    };
+
+    const chatCompletion = await this.cl.messages.create(
+      {
+        model: ClaudeInferenceClient.model,
+        max_tokens: serverConfig.inference.maxOutputTokens,
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: prompt },
+              {
+                type: "image",
+                source: {
+                  type: "base64",
+                  media_type: contentType as Base64ImageSource["media_type"],
+                  data: image,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      {
+        signal: optsWithDefaults.abortSignal,
+      },
+    );
+
+    const response = chatCompletion.content[0];
+    if (response.type !== "text") {
+      throw new Error(`Got no message content from Claude`);
+    }
+    return {
+      response: response.text,
+      totalTokens:
+        chatCompletion.usage.output_tokens + chatCompletion.usage.input_tokens,
+    };
+  }
+
+  generateEmbeddingFromText(_inputs: string[]): Promise<EmbeddingResponse> {
+    throw new Error("Method not implemented.");
+  }
+}
+
 class OpenAIInferenceClient implements InferenceClient {
-  openAI: OpenAI;
+  private openAI: OpenAI;
 
   constructor() {
     this.openAI = new OpenAI({
       apiKey: serverConfig.inference.openAIApiKey,
       baseURL: serverConfig.inference.openAIBaseUrl,
-      defaultHeaders: {
-        "X-Title": "Karakeep",
-        "HTTP-Referer": "https://karakeep.app",
-      },
+      defaultHeaders: { "X-Title": "Karakeep" },
     });
   }
 
@@ -182,7 +280,7 @@ class OpenAIInferenceClient implements InferenceClient {
 }
 
 class OllamaInferenceClient implements InferenceClient {
-  ollama: Ollama;
+  private ollama: Ollama;
 
   constructor() {
     this.ollama = new Ollama({
