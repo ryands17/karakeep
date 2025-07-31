@@ -12,10 +12,6 @@ patchedDependencies:
 importers:
 
   .:
-    dependencies:
-      husky:
-        specifier: ^9.0.11
-        version: 9.1.7
     devDependencies:
       '@karakeep/prettier-config':
         specifier: workspace:^0.1.0
@@ -26,6 +22,9 @@ importers:
       esbuild:
         specifier: 0.25.8
         version: 0.25.8
+      husky:
+        specifier: ^9.1.7
+        version: 9.1.7
       oxlint:
         specifier: ^1.7.0
         version: 1.7.0
@@ -632,19 +631,19 @@ importers:
         version: 0.501.0(react@18.3.1)
       next:
         specifier: 14.2.25
-        version: 14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
+        version: 14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
       next-auth:
         specifier: ^4.24.11
-        version: 4.24.11(next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.24.11(next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-i18next:
         specifier: ^15.3.1
-        version: 15.3.1(i18next@23.16.5)(next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-i18next@15.1.1(i18next@23.16.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        version: 15.3.1(i18next@23.16.5)(next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-i18next@15.1.1(i18next@23.16.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nuqs:
         specifier: ^2.4.3
-        version: 2.4.3(next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-router-dom@6.22.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-router@6.22.1(react@18.3.1))(react@18.3.1)
+        version: 2.4.3(next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-router-dom@6.22.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-router@6.22.1(react@18.3.1))(react@18.3.1)
       prettier:
         specifier: ^3.4.2
         version: 3.4.2
@@ -27027,13 +27026,13 @@ snapshots:
 
   nested-error-stacks@2.0.1: {}
 
-  next-auth@4.24.11(next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next-auth@4.24.11(next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.27.6
       '@panva/hkdf': 1.2.1
       cookie: 0.7.2
       jose: 4.15.9
-      next: 14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
+      next: 14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
       oauth: 0.9.15
       openid-client: 5.7.1
       preact: 10.11.3
@@ -27042,7 +27041,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       uuid: 8.3.2
 
-  next-i18next@15.3.1(i18next@23.16.5)(next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-i18next@15.1.1(i18next@23.16.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
+  next-i18next@15.3.1(i18next@23.16.5)(next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-i18next@15.1.1(i18next@23.16.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.27.6
       '@types/hoist-non-react-statics': 3.3.6
@@ -27050,7 +27049,7 @@ snapshots:
       hoist-non-react-statics: 3.3.2
       i18next: 23.16.5
       i18next-fs-backend: 2.6.0
-      next: 14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
+      next: 14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
       react: 18.3.1
       react-i18next: 15.1.1(i18next@23.16.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
@@ -27061,7 +27060,7 @@ snapshots:
 
   next-tick@1.1.0: {}
 
-  next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1):
+  next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1):
     dependencies:
       '@next/env': 14.2.25
       '@swc/helpers': 0.5.5
@@ -27071,7 +27070,7 @@ snapshots:
       postcss: 8.4.31
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.1(@babel/core@7.26.0)(react@18.3.1)
+      styled-jsx: 5.1.1(@babel/core@7.28.0)(react@18.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 14.2.25
       '@next/swc-darwin-x64': 14.2.25
@@ -27209,12 +27208,12 @@ snapshots:
 
   nullthrows@1.1.1: {}
 
-  nuqs@2.4.3(next@14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-router-dom@6.22.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-router@6.22.1(react@18.3.1))(react@18.3.1):
+  nuqs@2.4.3(next@14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1))(react-router-dom@6.22.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-router@6.22.1(react@18.3.1))(react@18.3.1):
     dependencies:
       mitt: 3.0.1
       react: 18.3.1
     optionalDependencies:
-      next: 14.2.25(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
+      next: 14.2.25(@babel/core@7.28.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass@1.89.1)
       react-router: 6.22.1(react@18.3.1)
       react-router-dom: 6.22.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
 
@@ -30084,12 +30083,12 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.4
 
-  styled-jsx@5.1.1(@babel/core@7.26.0)(react@18.3.1):
+  styled-jsx@5.1.1(@babel/core@7.28.0)(react@18.3.1):
     dependencies:
       client-only: 0.0.1
       react: 18.3.1
     optionalDependencies:
-      '@babel/core': 7.26.0
+      '@babel/core': 7.28.0
 
   stylehacks@6.1.1(postcss@8.5.6):
     dependencies:
