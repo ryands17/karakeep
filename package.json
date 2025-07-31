@@ -13,6 +13,7 @@
     "db:studio": "pnpm --filter @karakeep/db studio",
     "workers": "pnpm --filter @karakeep/workers run start",
     "web": "pnpm --filter @karakeep/web run dev",
+    "web:secure": "pnpm --filter @karakeep/web run dev:secure",
     "prepare": "husky",
     "format": "turbo --no-daemon format --continue",
     "format:fix": "turbo --no-daemon format:fix --continue",

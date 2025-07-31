@@ -7,8 +7,8 @@ import { loadAllPlugins } from "@karakeep/shared-server";
 import "@karakeep/tailwind-config/globals.css";
 
 import type { Viewport } from "next";
-import React from "react";
 import { Toaster } from "@/components/ui/toaster";
+import { InstallPrompt } from "@/components/utils/PWAInstallPrompt";
 import Providers from "@/lib/providers";
 import { getUserLocalSettings } from "@/lib/userLocalSettings/userLocalSettings";
 import { getServerAuthSession } from "@/server/auth";
@@ -64,6 +64,7 @@ export default async function RootLayout({
           >
             {children}
             <ReactQueryDevtools initialIsOpen={false} />
+            <InstallPrompt />
           </Providers>
           <Toaster />
         </NuqsAdapter>

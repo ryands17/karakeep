@@ -62,8 +62,13 @@ if [ -n "$DATA_DIR" ] && [ ! -d "$DATA_DIR" ]; then
 fi
 
 # Start the web app
-echo "Starting web app..."
-pnpm web & WEB_PID=$!
+if [ "$1" == "secure" ]; then
+    echo "Starting web app with https..."
+    pnpm web:secure & WEB_PID=$!
+else
+    echo "Starting web app..."
+    pnpm web & WEB_PID=$!
+fi
 
 # Wait for web app to be ready
 echo "Waiting for web app to start..."

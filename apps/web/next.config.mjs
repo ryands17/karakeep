@@ -1,12 +1,5 @@
-import pwa from "next-pwa";
-
-const withPWA = pwa({
-  dest: "public",
-  disable: process.env.NODE_ENV != "production",
-});
-
 /** @type {import('next').NextConfig} */
-const nextConfig = withPWA({
+const nextConfig = {
   output: "standalone",
   webpack: (config) => {
     config.module.rules.push({
@@ -55,6 +48,6 @@ const nextConfig = withPWA({
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-});
+};
 
 export default nextConfig;
