@@ -2,7 +2,7 @@ services:
   web:
     build:
       dockerfile: docker/Dockerfile
-      context: ..
+      context: .
       target: aio
     restart: unless-stopped
     volumes:
@@ -26,9 +26,8 @@ services:
       DATA_DIR: /data # DON'T CHANGE THIS
   db_backup:
     build:
-      context: ./litestream
+      context: ./docker/litestream
       dockerfile: Dockerfile
-    container_name: litestream
     healthcheck:
       test: "/usr/local/bin/litestream restore -if-db-not-exists -if-replica-exists -o /data/db.db s3://$DB_BUCKET_NAME/pockets.db"
       timeout: 10m
@@ -36,8 +35,6 @@ services:
     command: replicate
     env_file:
       - .env
-    depends_on:
-      - storage
     restart: always
     volumes:
       - data:/data
