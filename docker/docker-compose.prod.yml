@@ -14,6 +14,8 @@ services:
       - "3000"
     depends_on:
       - db_backup
+    env_file:
+      - .env
     environment:
       MEILI_ADDR: http://meilisearch:7700
       BROWSER_WEB_URL: http://chrome:9222
@@ -32,6 +34,8 @@ services:
       timeout: 10m
       retries: 1
     command: replicate
+    env_file:
+      - .env
     depends_on:
       - storage
     restart: always
@@ -50,6 +54,8 @@ services:
   meilisearch:
     image: getmeili/meilisearch:v1.13.3
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       MEILI_NO_ANALYTICS: "true"
     volumes:
