@@ -5,5 +5,5 @@ dbs:
   - path: /data/db.db
     replicas:
       - type: s3
-        bucket: $BUCKET_NAME
+        bucket: $DB_BUCKET_NAME
         path: pockets.db

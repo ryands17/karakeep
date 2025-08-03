@@ -20,6 +20,7 @@ services:
     environment:
       MEILI_ADDR: http://meilisearch:7700
       BROWSER_WEB_URL: http://chrome:9222
+      HOSTNAME: "0.0.0.0"
       # OPENAI_API_KEY: ...
 
       # You almost never want to change the value of the DATA_DIR variable.
