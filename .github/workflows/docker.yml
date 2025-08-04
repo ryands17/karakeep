@@ -48,10 +48,11 @@ jobs:
             type=raw,value=${{ steps.package-version.outputs.version }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./docker/Dockerfile
+          platforms: linux/arm64/v8
           target: aio
           push: true
           tags: ${{ steps.meta.outputs.tags }}
