@@ -13,6 +13,8 @@ services:
       - db_backup
     env_file:
       - .env
+    networks:
+      - dokploy-network
     environment:
       MEILI_ADDR: http://meilisearch:7700
       BROWSER_WEB_URL: http://chrome:9222
@@ -34,11 +36,15 @@ services:
     env_file:
       - .env
     restart: always
+    networks:
+      - dokploy-network
     volumes:
       - data:/data
   chrome:
     image: gcr.io/zenika-hub/alpine-chrome:123
     restart: unless-stopped
+    networks:
+      - dokploy-network
     command:
       - --no-sandbox
       - --disable-gpu
@@ -49,6 +55,8 @@ services:
   meilisearch:
     image: getmeili/meilisearch:v1.13.3
     restart: unless-stopped
+    networks:
+      - dokploy-network
     env_file:
       - .env
     environment:
@@ -59,3 +67,7 @@ services:
 volumes:
   meilisearch:
   data:
+
+networks:
+  dokploy-network:
+    external: true
