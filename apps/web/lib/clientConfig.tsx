@@ -1,6 +1,7 @@
 import { createContext, useContext } from "react";
 
 import type { ClientConfig } from "@karakeep/shared/config";
+import { clientConfig } from "@karakeep/shared/config";
 
 export const ClientConfigCtx = createContext<ClientConfig>({
   publicUrl: "",
@@ -11,8 +12,7 @@ export const ClientConfigCtx = createContext<ClientConfig>({
     isConfigured: false,
     inferredTagLang: "english",
   },
-  serverVersion: undefined,
-  disableNewReleaseCheck: true,
+  serverVersion: clientConfig.serverVersion,
 });
 
 export function useClientConfig() {

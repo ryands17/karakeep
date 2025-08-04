@@ -1,6 +1,8 @@
 import path from "path";
 import { z } from "zod";
 
+import packageJson from "../../package.json";
+
 const stringBool = (defaultValue: string) =>
   z
     .string()
@@ -87,9 +89,6 @@ const allEnv = z.object({
   INFERENCE_LANG: z.string().default("english"),
   WEBHOOK_TIMEOUT_SEC: z.coerce.number().default(5),
   WEBHOOK_RETRY_TIMES: z.coerce.number().int().min(0).default(3),
-  // Build only flag
-  SERVER_VERSION: z.string().optional(),
-  DISABLE_NEW_RELEASE_CHECK: stringBool("false"),
 
   // A flag to detect if the user is running in the old separete containers setup
   USING_LEGACY_SEPARATE_CONTAINERS: stringBool("false"),
@@ -240,8 +239,7 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
     dataDir: val.DATA_DIR,
     assetsDir: val.ASSETS_DIR ?? path.join(val.DATA_DIR, "assets"),
     maxAssetSizeMb: val.MAX_ASSET_SIZE_MB,
-    serverVersion: val.SERVER_VERSION,
-    disableNewReleaseCheck: val.DISABLE_NEW_RELEASE_CHECK,
+    serverVersion: packageJson.version,
     usingLegacySeparateContainers: val.USING_LEGACY_SEPARATE_CONTAINERS,
     webhook: {
       timeoutSec: val.WEBHOOK_TIMEOUT_SEC,
@@ -326,7 +324,6 @@ export const clientConfig = {
     inferredTagLang: serverConfig.inference.inferredTagLang,
   },
   serverVersion: serverConfig.serverVersion,
-  disableNewReleaseCheck: serverConfig.disableNewReleaseCheck,
 };
 export type ClientConfig = typeof clientConfig;
 

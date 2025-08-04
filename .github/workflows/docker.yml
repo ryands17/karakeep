@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build, push, and deploy
 
 on:
   push:
@@ -59,3 +59,21 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    env:
+      DOKPLOY_API_TOKEN: ${{ secrets.DOKPLOY_API_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+
+      - name: Deploy app
+        run: |
+          echo "Deploying app..."
+          node ./dokploy.js
+          echo "Deployment complete."
