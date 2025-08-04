@@ -2,6 +2,11 @@ name: Build and Push Docker Image
 
 on:
   push:
+    paths:
+      - "docker/**"
+      - "package.json"
+      - apps/**
+      - packages/**
     branches: [canary]
 
 env:

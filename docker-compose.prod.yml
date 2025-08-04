@@ -1,9 +1,7 @@
 services:
   web_app:
-    build:
-      dockerfile: docker/Dockerfile
-      context: .
-      target: aio
+    image: ryands1701/karakeep:release
+    platform: linux/arm64
     restart: unless-stopped
     volumes:
       # By default, the data is stored in a docker volume called "data".
