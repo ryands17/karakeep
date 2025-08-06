@@ -97,12 +97,8 @@ const allEnv = z.object({
   PROMETHEUS_AUTH_TOKEN: z.string().optional(),
 
   // Email configuration
-  SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().optional().default(587),
-  SMTP_SECURE: stringBool("false"),
-  SMTP_USER: z.string().optional(),
-  SMTP_PASSWORD: z.string().optional(),
-  SMTP_FROM: z.string().optional(),
+  EMAIL_ENABLED: stringBool("false"),
+  RESEND_API_KEY: z.string().optional(),
 
   // Asset storage configuration
   ASSET_STORE_S3_ENDPOINT: z.string().optional(),
@@ -162,16 +158,8 @@ const serverConfigSchema = allEnv.transform((val, _ctx) => {
       },
     },
     email: {
-      smtp: val.SMTP_HOST
-        ? {
-            host: val.SMTP_HOST,
-            port: val.SMTP_PORT,
-            secure: val.SMTP_SECURE,
-            user: val.SMTP_USER,
-            password: val.SMTP_PASSWORD,
-            from: val.SMTP_FROM,
-          }
-        : undefined,
+      enabled: val.EMAIL_ENABLED,
+      resendApiKey: val.RESEND_API_KEY,
     },
     inference: {
       isConfigured: !!val.OPENAI_API_KEY || !!val.OLLAMA_BASE_URL,
