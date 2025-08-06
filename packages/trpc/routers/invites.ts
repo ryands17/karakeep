@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { auth } from "@karakeep/auth";
 import { invites, user } from "@karakeep/db/schema";
-import { sendInviteEmail } from "@karakeep/shared/email";
+import { emailClient } from "@karakeep/shared/email";
 
 import {
   adminProcedure,
@@ -62,14 +62,14 @@ export const invitesAppRouter = router({
 
       // Send invite email
       try {
-        await sendInviteEmail(
-          input.email,
+        await emailClient.provider.sendInviteEmail({
+          email: input.email,
           token,
-          ctx.user.name || "A Karakeep admin",
-        );
+          inviterName: ctx.user.name || "A Karakeep admin",
+        });
       } catch (error) {
         console.error("Failed to send invite email:", error);
-        // Don't fail the invite creation if email sending fails
+        // Don't fail the resend if email sending fails
       }
 
       return {
@@ -281,11 +281,11 @@ export const invitesAppRouter = router({
 
       // Send invite email with new token
       try {
-        await sendInviteEmail(
-          invite.email,
-          newToken,
-          ctx.user.name || "A Karakeep admin",
-        );
+        await emailClient.provider.sendInviteEmail({
+          email: invite.email,
+          token: newToken,
+          inviterName: ctx.user.name || "A Karakeep admin",
+        });
       } catch (error) {
         console.error("Failed to send invite email:", error);
         // Don't fail the resend if email sending fails

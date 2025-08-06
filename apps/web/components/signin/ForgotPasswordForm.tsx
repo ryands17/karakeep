@@ -43,6 +43,7 @@ export default function ForgotPasswordForm() {
     setErrorMessage("");
     const { error } = await authClient.requestPasswordReset({
       email: values.email.trim(),
+      redirectTo: "/reset-password",
     });
     if (error) {
       setErrorMessage(

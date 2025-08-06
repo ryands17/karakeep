@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { relations, sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   AnySQLiteColumn,
   foreignKey,
@@ -27,8 +27,8 @@ function createdAtNotNull() {
 
 function updatedAtField() {
   return integer("updatedAt", { mode: "timestamp" })
-    .default(sql`(CURRENT_TIMESTAMP)`)
-    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`);
+    .$defaultFn(() => new Date())
+    .$onUpdate(() => new Date());
 }
 
 function modifiedAtField() {
@@ -38,16 +38,11 @@ function modifiedAtField() {
 }
 
 export const user = sqliteTable("user", {
-  id: text("id")
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => createId()),
+  id: text("id").notNull().primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
   emailVerified: integer("emailVerified", { mode: "boolean" }),
   image: text("image"),
-  password: text("password"),
-  salt: text("salt").notNull().default(""),
   role: text("role", { enum: ["admin", "user"] }).default("user"),
   bookmarkQuota: integer("bookmarkQuota"),
   storageQuota: integer("storageQuota"),
@@ -72,8 +67,10 @@ export const account = sqliteTable(
     providerAccountId: text("providerAccountId"),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    refreshTokenExpiresAt: integer("refreshTokenExpiresAt"),
+    expires_at: integer("expires_at", { mode: "timestamp" }),
+    refreshTokenExpiresAt: integer("refreshTokenExpiresAt", {
+      mode: "timestamp",
+    }),
     token_type: text("token_type"),
     scope: text("scope"),
     id_token: text("id_token"),
@@ -89,15 +86,12 @@ export const account = sqliteTable(
 );
 
 export const session = sqliteTable("session", {
-  id: text("id").notNull(),
-  sessionToken: text("sessionToken")
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => createId()),
+  id: text("id").primaryKey(),
+  sessionToken: text("sessionToken").notNull(),
   userId: text("userId")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  expires: integer("expires", { mode: "timestamp" }).notNull(),
   ipAddress: text("ipAddress"),
   userAgent: text("userAgent"),
   createdAt: createdAtField(),
@@ -105,9 +99,10 @@ export const session = sqliteTable("session", {
 });
 
 export const verification = sqliteTable("verification", {
+  id: text("id").primaryKey(),
   identifier: text("identifier"),
   value: text("value"),
-  expiresAt: integer("expiresAt"),
+  expiresAt: integer("expiresAt", { mode: "timestamp" }),
   createdAt: createdAtField(),
   updatedAt: updatedAtField(),
 });

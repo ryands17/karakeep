@@ -98,7 +98,9 @@ const allEnv = z.object({
 
   // Email configuration
   EMAIL_ENABLED: stringBool("false"),
+  // Resend configuration
   RESEND_API_KEY: z.string().optional(),
+  RESEND_FROM_EMAIL: z.string().optional(),
 
   // Asset storage configuration
   ASSET_STORE_S3_ENDPOINT: z.string().optional(),
@@ -160,6 +162,7 @@ const serverConfigSchema = allEnv.transform((val, _ctx) => {
     email: {
       enabled: val.EMAIL_ENABLED,
       resendApiKey: val.RESEND_API_KEY,
+      resendFromEmail: val.RESEND_FROM_EMAIL,
     },
     inference: {
       isConfigured: !!val.OPENAI_API_KEY || !!val.OLLAMA_BASE_URL,

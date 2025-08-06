@@ -1,0 +1,1 @@
+ALTER TABLE `verification` ADD `id` text NOT NULL;

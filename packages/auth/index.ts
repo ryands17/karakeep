@@ -8,6 +8,7 @@ import { count } from "drizzle-orm";
 import { db } from "@karakeep/db";
 import { user, userSettings } from "@karakeep/db/schema";
 import { globalConfig } from "@karakeep/shared/config";
+import { emailClient } from "@karakeep/shared/email";
 
 /**
  * Returns true if the user table is empty, which indicates that this user is going to be
@@ -63,7 +64,17 @@ export const auth = betterAuth({
       idToken: "id_token",
     },
   },
-  emailAndPassword: { enabled: true, requireEmailVerification: false },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: false,
+    sendResetPassword: async ({ user, url }) => {
+      await emailClient.provider.sendResetPasswordEmail({
+        email: user.email,
+        name: user.name,
+        url,
+      });
+    },
+  },
   databaseHooks: {
     user: {
       create: {

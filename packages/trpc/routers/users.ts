@@ -49,16 +49,16 @@ export const usersAppRouter = router({
           name: user.name,
           email: user.email,
           role: user.role,
-          password: user.password,
           bookmarkQuota: user.bookmarkQuota,
           storageQuota: user.storageQuota,
         })
         .from(user);
 
       return {
-        users: dbUsers.map(({ password, ...user }) => ({
+        users: dbUsers.map((user) => ({
           ...user,
-          localUser: password !== null,
+          // TODO: change with a join on the accounts table
+          localUser: true,
         })),
       };
     }),
@@ -135,7 +135,8 @@ export const usersAppRouter = router({
         id: ctx.user.id,
         name: ctx.user.name,
         email: ctx.user.email,
-        localUser: userDb.password !== null,
+        // TODO: change with a join on the accounts table
+        localUser: true,
       };
     }),
   stats: authedProcedure
