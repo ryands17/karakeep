@@ -4,14 +4,14 @@ import {
   toNetscapeFormat,
   zExportSchema,
 } from "@/lib/exportBookmarks";
-import { api, createContextFromRequest } from "@/server/api/client";
+import { api, createContext } from "@/server/api/client";
 import { z } from "zod";
 
 import { MAX_NUM_BOOKMARKS_PER_PAGE } from "@karakeep/shared/types/bookmarks";
 
 export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
-  const ctx = await createContextFromRequest(request);
+  const ctx = await createContext();
   if (!ctx.user) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }

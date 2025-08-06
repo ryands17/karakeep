@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { invites, users } from "@karakeep/db/schema";
+import { invites, user } from "@karakeep/db/schema";
 
 import type { CustomTestContext } from "../testUtils";
 import { defaultBeforeEach, getApiCaller } from "../testUtils";
@@ -643,10 +643,10 @@ describe("Invites Router", () => {
       password: "userpass123",
     });
 
-    const user = await db.query.users.findFirst({
-      where: eq(users.email, newUser.email),
+    const u = await db.query.user.findFirst({
+      where: eq(user.email, newUser.email),
     });
-    expect(user?.role).toBe("user");
+    expect(u?.role).toBe("user");
   });
 
   test<CustomTestContext>("email sending is called during invite creation", async ({

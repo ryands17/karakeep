@@ -2,7 +2,8 @@ import { TRPCError } from "@trpc/server";
 import { count, eq, or, sum } from "drizzle-orm";
 import { z } from "zod";
 
-import { assets, bookmarkLinks, bookmarks, users } from "@karakeep/db/schema";
+import { auth } from "@karakeep/auth";
+import { assets, bookmarkLinks, bookmarks, user } from "@karakeep/db/schema";
 import {
   AssetPreprocessingQueue,
   FeedQueue,
@@ -21,9 +22,7 @@ import {
   zAdminCreateUserSchema,
 } from "@karakeep/shared/types/admin";
 
-import { generatePasswordSalt, hashPassword } from "../auth";
 import { adminProcedure, router } from "../index";
-import { createUser } from "./users";
 
 export const adminAppRouter = router({
   stats: adminProcedure
@@ -36,7 +35,7 @@ export const adminAppRouter = router({
     .query(async ({ ctx }) => {
       const [[{ value: numUsers }], [{ value: numBookmarks }]] =
         await Promise.all([
-          ctx.db.select({ value: count() }).from(users),
+          ctx.db.select({ value: count() }).from(user),
           ctx.db.select({ value: count() }).from(bookmarks),
         ]);
 
@@ -293,7 +292,7 @@ export const adminAppRouter = router({
     )
     .query(async ({ ctx }) => {
       const [userIds, bookmarkStats, assetStats] = await Promise.all([
-        ctx.db.select({ id: users.id }).from(users),
+        ctx.db.select({ id: user.id }).from(user),
         ctx.db
           .select({ id: bookmarks.userId, value: count() })
           .from(bookmarks)
@@ -334,7 +333,25 @@ export const adminAppRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      return createUser(input, ctx, input.role);
+      const data = await auth.api.signUpEmail({
+        body: {
+          ...input,
+          role: "user",
+        },
+      });
+
+      const user = await ctx.db.query.user.findFirst({
+        where: (user, { eq }) => eq(user.id, data.user.id),
+      });
+
+      if (!user) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Cannot create user",
+        });
+      }
+
+      return user;
     }),
   updateUser: adminProcedure
     .input(updateUserSchema)
@@ -346,7 +363,7 @@ export const adminAppRouter = router({
         });
       }
 
-      const updateData: Partial<typeof users.$inferInsert> = {};
+      const updateData: Partial<typeof user.$inferInsert> = {};
 
       if (input.role !== undefined) {
         updateData.role = input.role;
@@ -372,9 +389,9 @@ export const adminAppRouter = router({
       }
 
       const result = await ctx.db
-        .update(users)
+        .update(user)
         .set(updateData)
-        .where(eq(users.id, input.userId));
+        .where(eq(user.id, input.userId));
 
       if (!result.changes) {
         throw new TRPCError({
@@ -392,19 +409,11 @@ export const adminAppRouter = router({
           message: "Cannot reset own password",
         });
       }
-      const newSalt = generatePasswordSalt();
-      const hashedPassword = await hashPassword(input.newPassword, newSalt);
-      const result = await ctx.db
-        .update(users)
-        .set({ password: hashedPassword, salt: newSalt })
-        .where(eq(users.id, input.userId));
 
-      if (result.changes == 0) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "User not found",
-        });
-      }
+      await auth.api.resetPassword({
+        body: { newPassword: input.newPassword },
+        headers: ctx.headers,
+      });
     }),
   getAdminNoticies: adminProcedure
     .output(

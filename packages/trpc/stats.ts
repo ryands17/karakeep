@@ -2,7 +2,7 @@ import { count, sum } from "drizzle-orm";
 import { Counter, Gauge, Histogram, register } from "prom-client";
 
 import { db } from "@karakeep/db";
-import { assets, bookmarks, users } from "@karakeep/db/schema";
+import { assets, bookmarks, user } from "@karakeep/db/schema";
 import {
   AssetPreprocessingQueue,
   FeedQueue,
@@ -62,7 +62,7 @@ const totalUsersGauge = new Gauge({
   help: "Total number of users in the system",
   async collect() {
     try {
-      const result = await db.select({ count: count() }).from(users);
+      const result = await db.select({ count: count() }).from(user);
       this.set(result[0]?.count ?? 0);
     } catch (error) {
       console.error("Failed to get user count:", error);
@@ -135,11 +135,11 @@ register.registerMetric(apiErrorsTotalCounter);
 register.registerMetric(apiRequestDurationSummary);
 
 export {
-  queuePendingJobsGauge,
-  totalUsersGauge,
-  totalAssetSizeGauge,
-  totalBookmarksGauge,
-  apiRequestsTotalCounter,
   apiErrorsTotalCounter,
   apiRequestDurationSummary,
+  apiRequestsTotalCounter,
+  queuePendingJobsGauge,
+  totalAssetSizeGauge,
+  totalBookmarksGauge,
+  totalUsersGauge,
 };

@@ -428,6 +428,69 @@
       "when": 1753728073666,
       "tag": "0060_stale_onslaught",
       "breakpoints": true
+    },
+    {
+      "idx": 61,
+      "version": "6",
+      "when": 1754432878778,
+      "tag": "0061_complete_hydra",
+      "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "6",
+      "when": 1754433073877,
+      "tag": "0062_lyrical_dreaming_celestial",
+      "breakpoints": true
+    },
+    {
+      "idx": 63,
+      "version": "6",
+      "when": 1754433343768,
+      "tag": "0063_boring_newton_destine",
+      "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "6",
+      "when": 1754433613267,
+      "tag": "0064_colossal_the_fury",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "6",
+      "when": 1754433697741,
+      "tag": "0065_groovy_spyke",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "6",
+      "when": 1754433748286,
+      "tag": "0066_free_electro",
+      "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "6",
+      "when": 1754434466888,
+      "tag": "0067_busy_wrecker",
+      "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "6",
+      "when": 1754434572412,
+      "tag": "0068_lively_solo",
+      "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "6",
+      "when": 1754484524573,
+      "tag": "0069_icy_korath",
+      "breakpoints": true
     }
   ]
 }

@@ -5,7 +5,7 @@ import { count, eq, sum } from "drizzle-orm";
 import Stripe from "stripe";
 import { z } from "zod";
 
-import { assets, bookmarks, subscriptions, users } from "@karakeep/db/schema";
+import { assets, bookmarks, subscriptions, user } from "@karakeep/db/schema";
 import serverConfig from "@karakeep/shared/config";
 
 import { authedProcedure, Context, publicProcedure, router } from "../index";
@@ -92,14 +92,14 @@ async function syncStripeDataToDatabase(customerId: string, db: Context["db"]) {
 
         // Update user quotas to free tier limits and disable browser crawling
         await trx
-          .update(users)
+          .update(user)
           .set({
             bookmarkQuota: serverConfig.quotas.free.bookmarkLimit,
             storageQuota: serverConfig.quotas.free.assetSizeBytes,
             browserCrawlingEnabled:
               serverConfig.quotas.free.browserCrawlingEnabled,
           })
-          .where(eq(users.id, existingSubscription.userId));
+          .where(eq(user.id, existingSubscription.userId));
       });
       return;
     }
@@ -133,25 +133,25 @@ async function syncStripeDataToDatabase(customerId: string, db: Context["db"]) {
       if (subData.status === "active" || subData.status === "trialing") {
         // Enable paid tier quotas and browser crawling
         await trx
-          .update(users)
+          .update(user)
           .set({
             bookmarkQuota: serverConfig.quotas.paid.bookmarkLimit,
             storageQuota: serverConfig.quotas.paid.assetSizeBytes,
             browserCrawlingEnabled:
               serverConfig.quotas.paid.browserCrawlingEnabled,
           })
-          .where(eq(users.id, existingSubscription.userId));
+          .where(eq(user.id, existingSubscription.userId));
       } else {
         // Set free tier quotas and disable browser crawling
         await trx
-          .update(users)
+          .update(user)
           .set({
             bookmarkQuota: serverConfig.quotas.free.bookmarkLimit,
             storageQuota: serverConfig.quotas.free.assetSizeBytes,
             browserCrawlingEnabled:
               serverConfig.quotas.free.browserCrawlingEnabled,
           })
-          .where(eq(users.id, existingSubscription.userId));
+          .where(eq(user.id, existingSubscription.userId));
       }
     });
 
@@ -230,8 +230,8 @@ export const subscriptionsRouter = router({
   createCheckoutSession: authedProcedure.mutation(async ({ ctx }) => {
     const { stripe, priceId } = requireStripeConfig();
 
-    const user = await ctx.db.query.users.findFirst({
-      where: eq(users.id, ctx.user.id),
+    const u = await ctx.db.query.user.findFirst({
+      where: eq(user.id, ctx.user.id),
       columns: {
         email: true,
       },
@@ -240,14 +240,14 @@ export const subscriptionsRouter = router({
       },
     });
 
-    if (!user) {
+    if (!u) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "User not found",
       });
     }
 
-    const existingSubscription = user.subscription;
+    const existingSubscription = u.subscription;
 
     if (existingSubscription?.status === "active") {
       throw new TRPCError({
@@ -260,7 +260,7 @@ export const subscriptionsRouter = router({
 
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email: user.email,
+        email: u.email,
         metadata: {
           userId: ctx.user.id,
         },
@@ -350,15 +350,15 @@ export const subscriptionsRouter = router({
   }),
 
   getQuotaUsage: authedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.query.users.findFirst({
-      where: eq(users.id, ctx.user.id),
+    const u = await ctx.db.query.user.findFirst({
+      where: eq(user.id, ctx.user.id),
       columns: {
         bookmarkQuota: true,
         storageQuota: true,
       },
     });
 
-    if (!user) {
+    if (!u) {
       throw new TRPCError({
         code: "NOT_FOUND",
         message: "User not found",
@@ -380,13 +380,13 @@ export const subscriptionsRouter = router({
     return {
       bookmarks: {
         used: bookmarkCount,
-        quota: user.bookmarkQuota,
-        unlimited: user.bookmarkQuota === null,
+        quota: u.bookmarkQuota,
+        unlimited: u.bookmarkQuota === null,
       },
       storage: {
         used: Number(storageUsed) || 0,
-        quota: user.storageQuota,
-        unlimited: user.storageQuota === null,
+        quota: u.storageQuota,
+        unlimited: u.storageQuota === null,
       },
     };
   }),

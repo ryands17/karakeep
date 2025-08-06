@@ -1,8 +1,13 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getServerAuthSession } from "@/server/auth";
+
+import { auth } from "@karakeep/auth";
 
 export default async function Home() {
-  const session = await getServerAuthSession();
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
   if (session) {
     redirect("/dashboard/bookmarks");
   } else {

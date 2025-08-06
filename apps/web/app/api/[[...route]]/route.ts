@@ -1,4 +1,4 @@
-import { createContextFromRequest } from "@/server/api/client";
+import { createContext } from "@/server/api/client";
 import { Hono } from "hono";
 import { createMiddleware } from "hono/factory";
 import { handle } from "hono/vercel";
@@ -13,7 +13,7 @@ export const nextAuth = createMiddleware<{
     ctx: Context;
   };
 }>(async (c, next) => {
-  const ctx = await createContextFromRequest(c.req.raw);
+  const ctx = await createContext();
   c.set("ctx", ctx);
   await next();
 });

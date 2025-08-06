@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import AllLists from "@/components/dashboard/sidebar/AllLists";
 import MobileSidebar from "@/components/shared/sidebar/MobileSidebar";
@@ -6,7 +7,6 @@ import SidebarLayout from "@/components/shared/sidebar/SidebarLayout";
 import { Separator } from "@/components/ui/separator";
 import { UserSettingsContextProvider } from "@/lib/userSettings";
 import { api } from "@/server/api/client";
-import { getServerAuthSession } from "@/server/auth";
 import { TFunction } from "i18next";
 import {
   Archive,
@@ -17,6 +17,7 @@ import {
   Tag,
 } from "lucide-react";
 
+import { auth } from "@karakeep/auth";
 import { PluginManager, PluginType } from "@karakeep/shared/plugins";
 
 export default async function Dashboard({
@@ -26,7 +27,10 @@ export default async function Dashboard({
   children: React.ReactNode;
   modal: React.ReactNode;
 }>) {
-  const session = await getServerAuthSession();
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
   if (!session) {
     redirect("/");
   }

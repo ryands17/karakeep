@@ -1,11 +1,13 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { AdminNotices } from "@/components/admin/AdminNotices";
 import MobileSidebar from "@/components/shared/sidebar/MobileSidebar";
 import Sidebar from "@/components/shared/sidebar/Sidebar";
 import SidebarLayout from "@/components/shared/sidebar/SidebarLayout";
-import { getServerAuthSession } from "@/server/auth";
 import { TFunction } from "i18next";
 import { Activity, ArrowLeft, Settings, Users } from "lucide-react";
+
+import { auth } from "@karakeep/auth";
 
 const adminSidebarItems = (
   t: TFunction,
@@ -46,7 +48,10 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerAuthSession();
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
   if (!session || session.user.role !== "admin") {
     redirect("/");
   }

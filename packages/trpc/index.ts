@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
@@ -23,17 +24,15 @@ interface User {
 export interface Context {
   user: User | null;
   db: DB;
-  req: {
-    ip: string | null;
-  };
+  req: { ip: string | null };
+  headers: ReturnType<typeof headers>;
 }
 
 export interface AuthedContext {
   user: User;
   db: DB;
-  req: {
-    ip: string | null;
-  };
+  req: { ip: string | null };
+  headers: ReturnType<typeof headers>;
 }
 
 // Avoid exporting the entire t-object
@@ -115,9 +114,7 @@ export const authedProcedure = procedure
     }
 
     return opts.next({
-      ctx: {
-        user,
-      },
+      ctx: { user },
     });
   });
 

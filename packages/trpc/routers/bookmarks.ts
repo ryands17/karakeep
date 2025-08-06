@@ -20,7 +20,7 @@ import {
   bookmarkTexts,
   customPrompts,
   tagsOnBookmarks,
-  users,
+  user,
 } from "@karakeep/db/schema";
 import {
   deleteAsset,
@@ -273,23 +273,23 @@ export const bookmarksAppRouter = router({
       }
 
       // Check user quota
-      const user = await ctx.db.query.users.findFirst({
-        where: eq(users.id, ctx.user.id),
+      const u = await ctx.db.query.user.findFirst({
+        where: eq(user.id, ctx.user.id),
         columns: {
           bookmarkQuota: true,
         },
       });
 
-      if (user?.bookmarkQuota !== null && user?.bookmarkQuota !== undefined) {
+      if (u?.bookmarkQuota !== null && u?.bookmarkQuota !== undefined) {
         const currentBookmarkCount = await ctx.db
           .select({ count: count() })
           .from(bookmarks)
           .where(eq(bookmarks.userId, ctx.user.id));
 
-        if (currentBookmarkCount[0].count >= user.bookmarkQuota) {
+        if (currentBookmarkCount[0].count >= u.bookmarkQuota) {
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `Bookmark quota exceeded. You can only have ${user.bookmarkQuota} bookmarks.`,
+            message: `Bookmark quota exceeded. You can only have ${u.bookmarkQuota} bookmarks.`,
           });
         }
       }

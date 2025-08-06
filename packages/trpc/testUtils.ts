@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 
 import { getInMemoryDB } from "@karakeep/db/drizzle";
-import { users } from "@karakeep/db/schema";
+import { user } from "@karakeep/db/schema";
 
 import { createCallerFactory } from "./index";
 import { appRouter } from "./routers/_app";
@@ -14,7 +14,7 @@ export type TestDB = ReturnType<typeof getTestDB>;
 
 export async function seedUsers(db: TestDB) {
   return await db
-    .insert(users)
+    .insert(user)
     .values([
       {
         name: "Test User 1",

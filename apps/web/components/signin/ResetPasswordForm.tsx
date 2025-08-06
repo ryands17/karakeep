@@ -20,9 +20,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { api } from "@/lib/trpc";
+import { authClient } from "@/lib/authClient";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TRPCClientError } from "@trpc/client";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -52,22 +51,18 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     resolver: zodResolver(resetPasswordSchema),
   });
 
-  const resetPasswordMutation = api.users.resetPassword.useMutation();
-
   const onSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
-    try {
-      setErrorMessage("");
-      await resetPasswordMutation.mutateAsync({
-        token,
-        newPassword: values.newPassword,
-      });
+    setErrorMessage("");
+    const { error } = await authClient.resetPassword({
+      newPassword: values.newPassword,
+      token,
+    });
+    if (error) {
+      setErrorMessage(
+        error.message ?? "An unexpected error occurred. Please try again.",
+      );
+    } else {
       setIsSuccess(true);
-    } catch (error) {
-      if (error instanceof TRPCClientError) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("An unexpected error occurred. Please try again.");
-      }
     }
   };
 

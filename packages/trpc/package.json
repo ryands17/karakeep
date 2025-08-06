@@ -13,6 +13,7 @@
     "test": "vitest"
   },
   "dependencies": {
+    "@karakeep/auth": "workspace:*",
     "@karakeep/db": "workspace:*",
     "@karakeep/plugins-search-meilisearch": "workspace:*",
     "@karakeep/shared": "workspace:*",

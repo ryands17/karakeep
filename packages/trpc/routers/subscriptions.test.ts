@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
-import { assets, AssetTypes, subscriptions, users } from "@karakeep/db/schema";
+import { assets, AssetTypes, subscriptions, user } from "@karakeep/db/schema";
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 
 import type { CustomTestContext } from "../testUtils";
@@ -328,22 +328,22 @@ describe("Subscription Routes", () => {
       db,
       unauthedAPICaller,
     }) => {
-      const user = await unauthedAPICaller.users.create({
+      const u = await unauthedAPICaller.users.create({
         name: "Test User",
         email: "test@test.com",
         password: "pass1234",
         confirmPassword: "pass1234",
       });
-      const caller = getApiCaller(db, user.id);
+      const caller = getApiCaller(db, u.id);
 
       // Set user quotas
       await db
-        .update(users)
+        .update(user)
         .set({
           bookmarkQuota: 100,
           storageQuota: 1000000, // 1MB
         })
-        .where(eq(users.id, user.id));
+        .where(eq(user.id, u.id));
 
       // Create test bookmarks
       const bookmark1 = await caller.bookmarks.createBookmark({
@@ -364,7 +364,7 @@ describe("Subscription Routes", () => {
           size: 50000, // 50KB
           contentType: "image/png",
           bookmarkId: bookmark1.id,
-          userId: user.id,
+          userId: u.id,
         },
         {
           id: "asset2",
@@ -372,7 +372,7 @@ describe("Subscription Routes", () => {
           size: 75000, // 75KB
           contentType: "image/jpeg",
           bookmarkId: bookmark2.id,
-          userId: user.id,
+          userId: u.id,
         },
       ]);
 
@@ -647,7 +647,7 @@ describe("Subscription Routes", () => {
       db,
       unauthedAPICaller,
     }) => {
-      const user = await unauthedAPICaller.users.create({
+      const u = await unauthedAPICaller.users.create({
         name: "Test User",
         email: "test@test.com",
         password: "pass1234",
@@ -656,16 +656,16 @@ describe("Subscription Routes", () => {
 
       // Set initial free tier quotas
       await db
-        .update(users)
+        .update(user)
         .set({
           bookmarkQuota: 100,
           storageQuota: 1000000, // 1MB
         })
-        .where(eq(users.id, user.id));
+        .where(eq(user.id, u.id));
 
       // Create subscription record
       await db.insert(subscriptions).values({
-        userId: user.id,
+        userId: u.id,
         stripeCustomerId: "cus_123",
         status: "unpaid",
         tier: "free",
@@ -715,8 +715,8 @@ describe("Subscription Routes", () => {
       });
 
       // Verify user quotas were updated to paid limits
-      const updatedUser = await db.query.users.findFirst({
-        where: eq(users.id, user.id),
+      const updatedUser = await db.query.user.findFirst({
+        where: eq(user.id, user.id),
         columns: {
           bookmarkQuota: true,
           storageQuota: true,
@@ -731,7 +731,7 @@ describe("Subscription Routes", () => {
       db,
       unauthedAPICaller,
     }) => {
-      const user = await unauthedAPICaller.users.create({
+      const u = await unauthedAPICaller.users.create({
         name: "Test User",
         email: "test@test.com",
         password: "pass1234",
@@ -740,16 +740,16 @@ describe("Subscription Routes", () => {
 
       // Set initial paid tier quotas (unlimited)
       await db
-        .update(users)
+        .update(user)
         .set({
           bookmarkQuota: null,
           storageQuota: null,
         })
-        .where(eq(users.id, user.id));
+        .where(eq(user.id, u.id));
 
       // Create active subscription
       await db.insert(subscriptions).values({
-        userId: user.id,
+        userId: u.id,
         stripeCustomerId: "cus_123",
         stripeSubscriptionId: "sub_123",
         status: "active",
@@ -800,8 +800,8 @@ describe("Subscription Routes", () => {
       });
 
       // Verify user quotas were updated to free limits
-      const updatedUser = await db.query.users.findFirst({
-        where: eq(users.id, user.id),
+      const updatedUser = await db.query.user.findFirst({
+        where: eq(user.id, user.id),
         columns: {
           bookmarkQuota: true,
           storageQuota: true,
@@ -816,7 +816,7 @@ describe("Subscription Routes", () => {
       db,
       unauthedAPICaller,
     }) => {
-      const user = await unauthedAPICaller.users.create({
+      const u = await unauthedAPICaller.users.create({
         name: "Test User",
         email: "test@test.com",
         password: "pass1234",
@@ -825,16 +825,16 @@ describe("Subscription Routes", () => {
 
       // Set initial paid tier quotas (unlimited)
       await db
-        .update(users)
+        .update(user)
         .set({
           bookmarkQuota: null,
           storageQuota: null,
         })
-        .where(eq(users.id, user.id));
+        .where(eq(user.id, u.id));
 
       // Create active subscription
       await db.insert(subscriptions).values({
-        userId: user.id,
+        userId: u.id,
         stripeCustomerId: "cus_123",
         stripeSubscriptionId: "sub_123",
         status: "active",
@@ -867,8 +867,8 @@ describe("Subscription Routes", () => {
       });
 
       // Verify user quotas were updated to free limits
-      const updatedUser = await db.query.users.findFirst({
-        where: eq(users.id, user.id),
+      const updatedUser = await db.query.user.findFirst({
+        where: eq(user.id, user.id),
         columns: {
           bookmarkQuota: true,
           storageQuota: true,

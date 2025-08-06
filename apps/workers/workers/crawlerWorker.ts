@@ -39,7 +39,7 @@ import {
   bookmarkAssets,
   bookmarkLinks,
   bookmarks,
-  users,
+  user,
 } from "@karakeep/db/schema";
 import {
   ASSET_TYPES,
@@ -360,8 +360,8 @@ async function crawlPage(
   url: string;
 }> {
   // Check user's browser crawling setting
-  const userData = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const userData = await db.query.user.findFirst({
+    where: eq(user.id, userId),
     columns: { browserCrawlingEnabled: true },
   });
   if (!userData) {

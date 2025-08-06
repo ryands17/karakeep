@@ -1,14 +1,12 @@
 "use client";
 
 import type { UserLocalSettings } from "@/lib/userLocalSettings/types";
-import type { Session } from "next-auth";
 import React, { useState } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { UserLocalSettingsCtx } from "@/lib/userLocalSettings/bookmarksLayout";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, loggerLink } from "@trpc/client";
-import { SessionProvider } from "next-auth/react";
 import superjson from "superjson";
 
 import type { ClientConfig } from "@karakeep/shared/config";
@@ -47,12 +45,10 @@ function getQueryClient() {
 
 export default function Providers({
   children,
-  session,
   clientConfig,
   userLocalSettings,
 }: {
   children: React.ReactNode;
-  session: Session | null;
   clientConfig: ClientConfig;
   userLocalSettings: UserLocalSettings;
 }) {
@@ -79,24 +75,20 @@ export default function Providers({
   return (
     <ClientConfigCtx.Provider value={clientConfig}>
       <UserLocalSettingsCtx.Provider value={userLocalSettings}>
-        <SessionProvider session={session}>
-          <api.Provider client={trpcClient} queryClient={queryClient}>
-            <QueryClientProvider client={queryClient}>
-              <CustomI18nextProvider lang={userLocalSettings.lang}>
-                <ThemeProvider
-                  attribute="class"
-                  defaultTheme="system"
-                  enableSystem
-                  disableTransitionOnChange
-                >
-                  <TooltipProvider delayDuration={0}>
-                    {children}
-                  </TooltipProvider>
-                </ThemeProvider>
-              </CustomI18nextProvider>
-            </QueryClientProvider>
-          </api.Provider>
-        </SessionProvider>
+        <api.Provider client={trpcClient} queryClient={queryClient}>
+          <QueryClientProvider client={queryClient}>
+            <CustomI18nextProvider lang={userLocalSettings.lang}>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+              </ThemeProvider>
+            </CustomI18nextProvider>
+          </QueryClientProvider>
+        </api.Provider>
       </UserLocalSettingsCtx.Provider>
     </ClientConfigCtx.Provider>
   );

@@ -11,9 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/authClient";
 import { useTranslation } from "@/lib/i18n/client";
 import { LogOut, Moon, Paintbrush, Settings, Shield, Sun } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 
 import { AdminNoticeBadge } from "../../admin/AdminNotices";
@@ -42,7 +42,7 @@ function DarkModeToggle() {
 export default function SidebarProfileOptions() {
   const { t } = useTranslation();
   const toggleTheme = useToggleTheme();
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const router = useRouter();
   if (!session) return redirect("/");
 

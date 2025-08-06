@@ -1,5 +1,6 @@
 import { experimental_trpcMiddleware, TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
+import invariant from "tiny-invariant";
 import { z } from "zod";
 
 import { webhooksTable } from "@karakeep/db/schema";
@@ -12,9 +13,12 @@ import {
 import { authedProcedure, Context, router } from "../index";
 
 function adaptWebhook(webhook: typeof webhooksTable.$inferSelect) {
-  const { token, ...rest } = webhook;
+  const { token, createdAt, ...rest } = webhook;
+
+  invariant(createdAt !== null, "createdAt is always defined");
   return {
     ...rest,
+    createdAt,
     hasToken: token !== null,
   };
 }

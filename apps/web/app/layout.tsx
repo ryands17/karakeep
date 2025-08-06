@@ -11,7 +11,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { InstallPrompt } from "@/components/utils/PWAInstallPrompt";
 import Providers from "@/lib/providers";
 import { getUserLocalSettings } from "@/lib/userLocalSettings/userLocalSettings";
-import { getServerAuthSession } from "@/server/auth";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { clientConfig } from "@karakeep/shared/config";
@@ -50,7 +49,6 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerAuthSession();
   const userSettings = await getUserLocalSettings();
   const isRTL = userSettings.lang === "ar";
   return (
@@ -58,7 +56,6 @@ export default async function RootLayout({
       <body className={inter.className}>
         <NuqsAdapter>
           <Providers
-            session={session}
             clientConfig={clientConfig}
             userLocalSettings={await getUserLocalSettings()}
           >

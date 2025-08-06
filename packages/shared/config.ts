@@ -103,7 +103,6 @@ const allEnv = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
-  EMAIL_VERIFICATION_REQUIRED: stringBool("false"),
 
   // Asset storage configuration
   ASSET_STORE_S3_ENDPOINT: z.string().optional(),
@@ -138,7 +137,7 @@ const allEnv = z.object({
   DB_WAL_MODE: stringBool("true"),
 });
 
-const serverConfigSchema = allEnv.transform((val, ctx) => {
+const serverConfigSchema = allEnv.transform((val, _ctx) => {
   const obj = {
     apiUrl: val.API_URL,
     publicUrl: val.NEXTAUTH_URL,
@@ -151,7 +150,6 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
     },
     auth: {
       disablePasswordAuth: val.DISABLE_PASSWORD_AUTH,
-      emailVerificationRequired: val.EMAIL_VERIFICATION_REQUIRED,
       oauth: {
         allowDangerousEmailAccountLinking:
           val.OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING,
@@ -299,14 +297,6 @@ const serverConfigSchema = allEnv.transform((val, ctx) => {
       walMode: val.DB_WAL_MODE,
     },
   };
-  if (obj.auth.emailVerificationRequired && !obj.email.smtp) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "To enable email verification, SMTP settings must be configured",
-      fatal: true,
-    });
-    return z.NEVER;
-  }
   return obj;
 });
 

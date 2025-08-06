@@ -1,10 +1,15 @@
 import { redirect } from "next/dist/client/components/navigation";
+import { headers } from "next/headers";
 import KarakeepLogo from "@/components/KarakeepIcon";
 import SignInForm from "@/components/signin/SignInForm";
-import { getServerAuthSession } from "@/server/auth";
+
+import { auth } from "@karakeep/auth";
 
 export default async function SignInPage() {
-  const session = await getServerAuthSession();
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
   if (session) {
     redirect("/");
   }

@@ -1,30 +1,30 @@
+import { headers } from "next/headers";
 import { eq } from "drizzle-orm";
 
 import { db } from "@karakeep/db";
-import { users } from "@karakeep/db/schema";
+import { user } from "@karakeep/db/schema";
 
 import { AuthedContext } from "..";
 
 export async function buildImpersonatingAuthedContext(
   userId: string,
 ): Promise<AuthedContext> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const u = await db.query.user.findFirst({
+    where: eq(user.id, userId),
   });
-  if (!user) {
+  if (!u) {
     throw new Error("User not found");
   }
 
   return {
     user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role,
     },
     db,
-    req: {
-      ip: null,
-    },
+    req: { ip: null },
+    headers: headers(),
   };
 }

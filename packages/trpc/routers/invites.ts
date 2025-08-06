@@ -3,9 +3,9 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, gt } from "drizzle-orm";
 import { z } from "zod";
 
-import { invites, users } from "@karakeep/db/schema";
+import { auth } from "@karakeep/auth";
+import { invites, user } from "@karakeep/db/schema";
 
-import { generatePasswordSalt, hashPassword } from "../auth";
 import { sendInviteEmail } from "../email";
 import {
   adminProcedure,
@@ -13,7 +13,6 @@ import {
   publicProcedure,
   router,
 } from "../index";
-import { createUserRaw } from "./users";
 
 export const invitesAppRouter = router({
   create: adminProcedure
@@ -23,8 +22,8 @@ export const invitesAppRouter = router({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const existingUser = await ctx.db.query.users.findFirst({
-        where: eq(users.email, input.email),
+      const existingUser = await ctx.db.query.user.findFirst({
+        where: eq(user.email, input.email),
       });
 
       if (existingUser) {
@@ -112,9 +111,7 @@ export const invitesAppRouter = router({
         orderBy: (invites, { desc }) => [desc(invites.createdAt)],
       });
 
-      return {
-        invites: dbInvites,
-      };
+      return { invites: dbInvites };
     }),
 
   get: publicProcedure
@@ -199,8 +196,8 @@ export const invitesAppRouter = router({
         });
       }
 
-      const existingUser = await ctx.db.query.users.findFirst({
-        where: eq(users.email, invite.email),
+      const existingUser = await ctx.db.query.user.findFirst({
+        where: eq(user.email, invite.email),
       });
 
       if (existingUser) {
@@ -210,23 +207,22 @@ export const invitesAppRouter = router({
         });
       }
 
-      const salt = generatePasswordSalt();
-      const user = await createUserRaw(ctx.db, {
-        name: input.name,
-        email: invite.email,
-        password: await hashPassword(input.password, salt),
-        salt,
-        role: "user",
-        emailVerified: new Date(), // Auto-verify invited users
+      const { user: newUser } = await auth.api.signUpEmail({
+        body: {
+          name: input.name,
+          email: invite.email,
+          password: input.password,
+          role: "user",
+        },
       });
 
       // Delete the invite after successful user creation
       await ctx.db.delete(invites).where(eq(invites.id, invite.id));
 
       return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
       };
     }),
 

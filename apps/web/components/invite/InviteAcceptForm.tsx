@@ -21,11 +21,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/authClient";
 import { api } from "@/lib/trpc";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TRPCClientError } from "@trpc/client";
 import { AlertCircle, Clock, Loader2, Mail, UserPlus } from "lucide-react";
-import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -192,15 +192,14 @@ export default function InviteAcceptForm({ token }: InviteAcceptFormProps) {
                 });
 
                 // Sign in the user after successful account creation
-                const resp = await signIn("credentials", {
-                  redirect: false,
+                const resp = await authClient.signIn.email({
                   email: inviteData.email,
                   password: value.password,
                 });
 
-                if (!resp || !resp.ok || resp.error) {
+                if (resp.error) {
                   setErrorMessage(
-                    resp?.error ??
+                    resp.error.message ??
                       "Account created but sign in failed. Please try signing in manually.",
                   );
                   return;

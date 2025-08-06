@@ -1,13 +1,18 @@
+import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import GlobalActions from "@/components/dashboard/GlobalActions";
 import ProfileOptions from "@/components/dashboard/header/ProfileOptions";
 import { SearchInput } from "@/components/dashboard/search/SearchInput";
 import KarakeepLogo from "@/components/KarakeepIcon";
-import { getServerAuthSession } from "@/server/auth";
+
+import { auth } from "@karakeep/auth";
 
 export default async function Header() {
-  const session = await getServerAuthSession();
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
   if (!session) {
     redirect("/");
   }

@@ -1,7 +1,7 @@
 import { eq, sum } from "drizzle-orm";
 
 import type { DB, KarakeepDBTransaction } from "@karakeep/db";
-import { assets, users } from "@karakeep/db/schema";
+import { assets, user } from "@karakeep/db/schema";
 import { QuotaApproved } from "@karakeep/shared/storageQuota";
 
 export class StorageQuotaError extends Error {
@@ -22,22 +22,22 @@ export async function checkStorageQuota(
   userId: string,
   requestedSize: number,
 ): Promise<QuotaApproved> {
-  const user = await db.query.users.findFirst({
-    where: eq(users.id, userId),
+  const u = await db.query.user.findFirst({
+    where: eq(user.id, userId),
     columns: {
       storageQuota: true,
     },
   });
 
-  if (user?.storageQuota === null || user?.storageQuota === undefined) {
+  if (u?.storageQuota === null || u?.storageQuota === undefined) {
     // No quota limit - approve the request
     return QuotaApproved._create(userId, requestedSize);
   }
 
   const currentUsage = await getCurrentStorageUsage(db, userId);
 
-  if (currentUsage + requestedSize > user.storageQuota) {
-    throw new StorageQuotaError(currentUsage, user.storageQuota, requestedSize);
+  if (currentUsage + requestedSize > u.storageQuota) {
+    throw new StorageQuotaError(currentUsage, u.storageQuota, requestedSize);
   }
 
   // Quota check passed - return approval token

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { authClient } from "@/lib/authClient";
 
 import { useSearchHistory } from "@karakeep/shared-react/hooks/search-history";
 
@@ -14,12 +14,9 @@ export default function Logout() {
     removeItem: (k: string) => localStorage.removeItem(k),
   });
   useEffect(() => {
-    signOut({
-      redirect: false,
-      callbackUrl: "/",
-    }).then((d) => {
+    authClient.signOut().then(() => {
       clearHistory();
-      router.push(d.url);
+      router.push("/");
     });
   }, []);
   return <span />;

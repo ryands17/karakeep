@@ -1,6 +1,5 @@
-import type { AdapterAccount } from "@auth/core/adapters";
 import { createId } from "@paralleldrive/cuid2";
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   AnySQLiteColumn,
   foreignKey,
@@ -15,9 +14,21 @@ import {
 import { BookmarkTypes } from "@karakeep/shared/types/bookmarks";
 
 function createdAtField() {
+  return integer("createdAt", { mode: "timestamp" }).$defaultFn(
+    () => new Date(),
+  );
+}
+
+function createdAtNotNull() {
   return integer("createdAt", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date());
+}
+
+function updatedAtField() {
+  return integer("updatedAt", { mode: "timestamp" })
+    .default(sql`(CURRENT_TIMESTAMP)`)
+    .$onUpdate(() => sql`(CURRENT_TIMESTAMP)`);
 }
 
 function modifiedAtField() {
@@ -26,14 +37,14 @@ function modifiedAtField() {
     .$onUpdate(() => new Date());
 }
 
-export const users = sqliteTable("user", {
+export const user = sqliteTable("user", {
   id: text("id")
     .notNull()
     .primaryKey()
     .$defaultFn(() => createId()),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+  emailVerified: integer("emailVerified", { mode: "boolean" }),
   image: text("image"),
   password: text("password"),
   salt: text("salt").notNull().default(""),
@@ -43,24 +54,32 @@ export const users = sqliteTable("user", {
   browserCrawlingEnabled: integer("browserCrawlingEnabled", {
     mode: "boolean",
   }),
+  createdAt: createdAtField(),
+  updatedAt: updatedAtField(),
 });
 
-export const accounts = sqliteTable(
+export const account = sqliteTable(
   "account",
   {
+    id: text("id").notNull(),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccount["type"]>().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
+      .references(() => user.id, { onDelete: "cascade" }),
+    type: text("type"),
+    providerId: text("providerId"),
+    provider: text("provider"),
+    password: text("password"),
+    providerAccountId: text("providerAccountId"),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
+    refreshTokenExpiresAt: integer("refreshTokenExpiresAt"),
     token_type: text("token_type"),
     scope: text("scope"),
     id_token: text("id_token"),
     session_state: text("session_state"),
+    createdAt: createdAtField(),
+    updatedAt: updatedAtField(),
   },
   (account) => [
     primaryKey({
@@ -69,43 +88,29 @@ export const accounts = sqliteTable(
   ],
 );
 
-export const sessions = sqliteTable("session", {
+export const session = sqliteTable("session", {
+  id: text("id").notNull(),
   sessionToken: text("sessionToken")
     .notNull()
     .primaryKey()
     .$defaultFn(() => createId()),
   userId: text("userId")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
+  ipAddress: text("ipAddress"),
+  userAgent: text("userAgent"),
+  createdAt: createdAtField(),
+  updatedAt: updatedAtField(),
 });
 
-export const verificationTokens = sqliteTable(
-  "verificationToken",
-  {
-    identifier: text("identifier").notNull(),
-    token: text("token").notNull(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
-  },
-  (vt) => [primaryKey({ columns: [vt.identifier, vt.token] })],
-);
-
-export const passwordResetTokens = sqliteTable(
-  "passwordResetToken",
-  {
-    id: text("id")
-      .notNull()
-      .primaryKey()
-      .$defaultFn(() => createId()),
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    token: text("token").notNull().unique(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
-    createdAt: createdAtField(),
-  },
-  (prt) => [index("passwordResetTokens_userId_idx").on(prt.userId)],
-);
+export const verification = sqliteTable("verification", {
+  identifier: text("identifier"),
+  value: text("value"),
+  expiresAt: integer("expiresAt"),
+  createdAt: createdAtField(),
+  updatedAt: updatedAtField(),
+});
 
 export const apiKeys = sqliteTable(
   "apiKey",
@@ -115,12 +120,12 @@ export const apiKeys = sqliteTable(
       .primaryKey()
       .$defaultFn(() => createId()),
     name: text("name").notNull(),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     keyId: text("keyId").notNull().unique(),
     keyHash: text("keyHash").notNull(),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
   (ak) => [unique().on(ak.name, ak.userId)],
 );
@@ -132,7 +137,7 @@ export const bookmarks = sqliteTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => createId()),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     modifiedAt: modifiedAtField(),
     title: text("title"),
     archived: integer("archived", { mode: "boolean" }).notNull().default(false),
@@ -141,7 +146,7 @@ export const bookmarks = sqliteTable(
       .default(false),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     taggingStatus: text("taggingStatus", {
       enum: ["pending", "failure", "success"],
     }).default("pending"),
@@ -230,7 +235,7 @@ export const assets = sqliteTable(
     }),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
 
   (tb) => [
@@ -254,7 +259,7 @@ export const highlights = sqliteTable(
       }),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     startOffset: integer("startOffset").notNull(),
     endOffset: integer("endOffset").notNull(),
     color: text("color", {
@@ -264,7 +269,7 @@ export const highlights = sqliteTable(
       .notNull(),
     text: text("text"),
     note: text("note"),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
   },
   (tb) => [
     index("highlights_bookmarkId_idx").on(tb.bookmarkId),
@@ -304,10 +309,10 @@ export const bookmarkTags = sqliteTable(
       .primaryKey()
       .$defaultFn(() => createId()),
     name: text("name").notNull(),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
   (bt) => [
     unique().on(bt.userId, bt.name),
@@ -349,10 +354,10 @@ export const bookmarkLists = sqliteTable(
     name: text("name").notNull(),
     description: text("description"),
     icon: text("icon").notNull(),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     type: text("type", { enum: ["manual", "smart"] }).notNull(),
     // Only applicable for smart lists
     query: text("query"),
@@ -402,10 +407,10 @@ export const customPrompts = sqliteTable(
     appliesTo: text("appliesTo", {
       enum: ["all_tagging", "text", "images", "summary"],
     }).notNull(),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
   (bl) => [index("customPrompts_userId_idx").on(bl.userId)],
 );
@@ -420,14 +425,14 @@ export const rssFeedsTable = sqliteTable(
     name: text("name").notNull(),
     url: text("url").notNull(),
     enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     lastFetchedAt: integer("lastFetchedAt", { mode: "timestamp" }),
     lastFetchedStatus: text("lastFetchedStatus", {
       enum: ["pending", "failure", "success"],
     }).default("pending"),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
   },
   (bl) => [index("rssFeeds_userId_idx").on(bl.userId)],
 );
@@ -439,11 +444,11 @@ export const webhooksTable = sqliteTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => createId()),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     url: text("url").notNull(),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     events: text("events", { mode: "json" })
       .notNull()
       .$type<("created" | "edited" | "crawled" | "ai tagged" | "deleted")[]>(),
@@ -459,7 +464,7 @@ export const rssFeedImportsTable = sqliteTable(
       .notNull()
       .primaryKey()
       .$defaultFn(() => createId()),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     entryId: text("entryId").notNull(),
     rssFeedId: text("rssFeedId")
       .notNull()
@@ -496,7 +501,7 @@ export const ruleEngineRulesTable = sqliteTable(
     // References
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
 
     listId: text("listId"),
     tagId: text("tagId"),
@@ -527,7 +532,7 @@ export const ruleEngineActionsTable = sqliteTable(
       .$defaultFn(() => createId()),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+      .references(() => user.id, { onDelete: "cascade" }),
     ruleId: text("ruleId")
       .notNull()
       .references(() => ruleEngineRulesTable.id, { onDelete: "cascade" }),
@@ -558,7 +563,7 @@ export const userSettings = sqliteTable("userSettings", {
   userId: text("userId")
     .notNull()
     .primaryKey()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
   bookmarkClickAction: text("bookmarkClickAction", {
     enum: ["open_original_link", "expand_bookmark_preview"],
   })
@@ -585,12 +590,12 @@ export const invites = sqliteTable("invites", {
     .$defaultFn(() => createId()),
   email: text("email").notNull(),
   token: text("token").notNull().unique(),
-  createdAt: createdAtField(),
+  createdAt: createdAtNotNull(),
   expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
   usedAt: integer("usedAt", { mode: "timestamp" }),
   invitedBy: text("invitedBy")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => user.id, { onDelete: "cascade" }),
 });
 
 export const subscriptions = sqliteTable(
@@ -602,7 +607,7 @@ export const subscriptions = sqliteTable(
       .$defaultFn(() => createId()),
     userId: text("userId")
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" })
+      .references(() => user.id, { onDelete: "cascade" })
       .unique(),
     stripeCustomerId: text("stripeCustomerId").notNull(),
     stripeSubscriptionId: text("stripeSubscriptionId"),
@@ -629,7 +634,7 @@ export const subscriptions = sqliteTable(
     }).default(false),
     startDate: integer("startDate", { mode: "timestamp" }),
     endDate: integer("endDate", { mode: "timestamp" }),
-    createdAt: createdAtField(),
+    createdAt: createdAtNotNull(),
     modifiedAt: modifiedAtField(),
   },
   (s) => [
@@ -640,23 +645,23 @@ export const subscriptions = sqliteTable(
 
 // Relations
 
-export const userRelations = relations(users, ({ many, one }) => ({
+export const userRelations = relations(user, ({ many, one }) => ({
   tags: many(bookmarkTags),
   bookmarks: many(bookmarks),
   webhooks: many(webhooksTable),
   rules: many(ruleEngineRulesTable),
   invites: many(invites),
   settings: one(userSettings, {
-    fields: [users.id],
+    fields: [user.id],
     references: [userSettings.userId],
   }),
   subscription: one(subscriptions),
 }));
 
 export const bookmarkRelations = relations(bookmarks, ({ many, one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [bookmarks.userId],
-    references: [users.id],
+    references: [user.id],
   }),
   link: one(bookmarkLinks, {
     fields: [bookmarks.id],
@@ -686,9 +691,9 @@ export const assetRelations = relations(assets, ({ one }) => ({
 export const bookmarkTagsRelations = relations(
   bookmarkTags,
   ({ many, one }) => ({
-    user: one(users, {
+    user: one(user, {
       fields: [bookmarkTags.userId],
-      references: [users.id],
+      references: [user.id],
     }),
     tagsOnBookmarks: many(tagsOnBookmarks),
   }),
@@ -709,9 +714,9 @@ export const tagsOnBookmarksRelations = relations(
 );
 
 export const apiKeyRelations = relations(apiKeys, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [apiKeys.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 
@@ -719,9 +724,9 @@ export const bookmarkListsRelations = relations(
   bookmarkLists,
   ({ one, many }) => ({
     bookmarksInLists: many(bookmarksInLists),
-    user: one(users, {
+    user: one(user, {
       fields: [bookmarkLists.userId],
-      references: [users.id],
+      references: [user.id],
     }),
     parent: one(bookmarkLists, {
       fields: [bookmarkLists.parentId],
@@ -745,18 +750,18 @@ export const bookmarksInListsRelations = relations(
 );
 
 export const webhooksRelations = relations(webhooksTable, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [webhooksTable.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 
 export const ruleEngineRulesRelations = relations(
   ruleEngineRulesTable,
   ({ one, many }) => ({
-    user: one(users, {
+    user: one(user, {
       fields: [ruleEngineRulesTable.userId],
-      references: [users.id],
+      references: [user.id],
     }),
     actions: many(ruleEngineActionsTable),
   }),
@@ -787,32 +792,22 @@ export const rssFeedImportsTableRelations = relations(
 );
 
 export const userSettingsRelations = relations(userSettings, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [userSettings.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 
 export const invitesRelations = relations(invites, ({ one }) => ({
-  invitedBy: one(users, {
+  invitedBy: one(user, {
     fields: [invites.invitedBy],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
 
 export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
-  user: one(users, {
+  user: one(user, {
     fields: [subscriptions.userId],
-    references: [users.id],
+    references: [user.id],
   }),
 }));
-
-export const passwordResetTokensRelations = relations(
-  passwordResetTokens,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [passwordResetTokens.userId],
-      references: [users.id],
-    }),
-  }),
-);

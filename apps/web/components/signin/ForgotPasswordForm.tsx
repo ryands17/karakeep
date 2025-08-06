@@ -20,9 +20,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { api } from "@/lib/trpc";
+import { authClient } from "@/lib/authClient";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { TRPCClientError } from "@trpc/client";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -40,19 +39,17 @@ export default function ForgotPasswordForm() {
     resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const forgotPasswordMutation = api.users.forgotPassword.useMutation();
-
   const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
-    try {
-      setErrorMessage("");
-      await forgotPasswordMutation.mutateAsync(values);
+    setErrorMessage("");
+    const { error } = await authClient.requestPasswordReset({
+      email: values.email.trim(),
+    });
+    if (error) {
+      setErrorMessage(
+        error.message ?? "An unexpected error occurred. Please try again.",
+      );
+    } else {
       setIsSubmitted(true);
-    } catch (error) {
-      if (error instanceof TRPCClientError) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("An unexpected error occurred. Please try again.");
-      }
     }
   };
 

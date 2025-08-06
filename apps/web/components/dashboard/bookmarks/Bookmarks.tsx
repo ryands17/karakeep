@@ -1,9 +1,10 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { api } from "@/server/api/client";
-import { getServerAuthSession } from "@/server/auth";
 
 import type { ZGetBookmarksRequest } from "@karakeep/shared/types/bookmarks";
+import { auth } from "@karakeep/auth";
 
 import UpdatableBookmarksGrid from "./UpdatableBookmarksGrid";
 
@@ -18,7 +19,10 @@ export default async function Bookmarks({
   showDivider?: boolean;
   showEditorCard?: boolean;
 }) {
-  const session = await getServerAuthSession();
+  const session = await auth.api.getSession({
+    headers: headers(),
+  });
+
   if (!session) {
     redirect("/");
   }

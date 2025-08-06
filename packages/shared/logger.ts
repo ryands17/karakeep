@@ -2,6 +2,7 @@ import winston from "winston";
 
 import serverConfig from "./config";
 
+// TODO: change to pino
 const logger = winston.createLogger({
   level: serverConfig.logLevel,
   format: winston.format.combine(
