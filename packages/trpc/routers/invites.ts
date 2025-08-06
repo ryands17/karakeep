@@ -5,8 +5,8 @@ import { z } from "zod";
 
 import { auth } from "@karakeep/auth";
 import { invites, user } from "@karakeep/db/schema";
+import { sendInviteEmail } from "@karakeep/shared/email";
 
-import { sendInviteEmail } from "../email";
 import {
   adminProcedure,
   createRateLimitMiddleware,

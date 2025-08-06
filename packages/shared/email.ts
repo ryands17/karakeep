@@ -1,6 +1,6 @@
 import { createTransport } from "nodemailer";
 
-import serverConfig from "@karakeep/shared/config";
+import serverConfig from "./config";
 
 export async function sendInviteEmail(
   email: string,
@@ -57,65 +57,6 @@ ${inviteUrl}
 This invitation will expire in 7 days.
 
 If you weren't expecting this invitation, you can safely ignore this email.
-    `,
-  };
-
-  await transporter.sendMail(mailOptions);
-}
-
-export async function sendPasswordResetEmail(
-  email: string,
-  name: string,
-  token: string,
-) {
-  if (!serverConfig.email.smtp) {
-    throw new Error("SMTP is not configured");
-  }
-
-  const transporter = createTransport({
-    host: serverConfig.email.smtp.host,
-    port: serverConfig.email.smtp.port,
-    secure: serverConfig.email.smtp.secure,
-    auth:
-      serverConfig.email.smtp.user && serverConfig.email.smtp.password
-        ? {
-            user: serverConfig.email.smtp.user,
-            pass: serverConfig.email.smtp.password,
-          }
-        : undefined,
-  });
-
-  const resetUrl = `${serverConfig.publicUrl}/reset-password?token=${encodeURIComponent(token)}`;
-
-  const mailOptions = {
-    from: serverConfig.email.smtp.from,
-    to: email,
-    subject: "Reset your password",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Password Reset Request</h2>
-        <p>Hi ${name},</p>
-        <p>You requested to reset your password for your Karakeep account. Click the link below to reset your password:</p>
-        <p>
-          <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            Reset Password
-          </a>
-        </p>
-        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-        <p><a href="${resetUrl}">${resetUrl}</a></p>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request a password reset, please ignore this email. Your password will remain unchanged.</p>
-      </div>
-    `,
-    text: `
-Hi ${name},
-
-You requested to reset your password for your Karakeep account. Visit this link to reset your password:
-${resetUrl}
-
-This link will expire in 1 hour.
-
-If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
     `,
   };
 
